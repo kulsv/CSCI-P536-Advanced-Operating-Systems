@@ -1,0 +1,25 @@
+(Q1) What is Orphan and Zombie processes?
+Answer - 
+Orphan Process:
+-The Linux (child) process whose parent parent process is dead or killed or terminated or finished is called as an Orphan Process. 
+- A process can be orphaned due to many reasons such as:
+   (1) the client who intiated this parent process is crashed. 
+   (2) The parent process is an infinite process and is consuming too many resources without giving any desired output. In this case, the parent process is intentionally killed to release the resources.
+- When a process gets orphaned, it is by default owned by the init process. Init is a system process. And this procedure takes place quickly.
+-These Orphaned processes are often killed  intentionally even when they are owned by init as their original creator no longer exists and thus, execution of such processes without parent causes wastage of resources.
+
+Zombie Process : 
+- The Linux processes that are already dead but still exist in process table are called as Zombie Processes. Process table is a table that stores all the process related details. These zombie  processes are retained in the process table so that parent process can refer and follow up with their dead children processes.  When a process dies, its process descriptor retains in the memory and its status is changed. When this change in status of child process takes place, the parent process is informed that its child process has died. Then parent process executes the wait() system call and collects all the information such as exit status of the dead child process and after this, the child process gets removed from the memory.
+- So, whenever a process dies, it by default enters into the "Zombie" state and retains there until its parent process take the necessary action to remove it.
+- This zombie process is kind of a side effect of the bad programming practice in simple words. If multiple zombie processes exist during execution of a program, this means that the parent process is not functioning properly or not written properly.
+-Zombie processes do not consume any resources.
+- It is very common to have Zombie processes created when a parent process is executed as they can be cleaned by calling wait() system call. If wait() is not called, these zombie processes remain in the memory, consuming the unique process id i.e. PID. As Linux has a limit on total number of processes that can be created, if multiple processes enter in zombie state, there is a restriction on the number of new processes that can be created due to less availability of process ids.
+
+
+
+(Q2) What are the changes that occur when the child process calls the exec system call to execute a new program?
+Answer - 
+-When a child process calls exec(), it basically clears the existing data and program and loads the new program in the existing process to run it. The parent process is made  to wait till exec() gets executed and returns sthe control to the parent process.
+-The whole control is to exec() call during this time. Every other function is paused.
+- exec() is generally called after fork() and thus is called/run by the child process.
+-execl(), execle(), execlp(), etc funtions belong to exec() family.
