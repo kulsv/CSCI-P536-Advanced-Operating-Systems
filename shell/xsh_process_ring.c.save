@@ -1,0 +1,122 @@
+#include <xinu.h>
+#include <string.h>
+#include <stdio.h>
+
+process polling_proc(int32 *intArray1, int32 *intArray2, int32 *pCurr, int32 *rCurr);
+process msg_Pass(pid32 parent_pid);
+process chk(pid32 parent_pid);
+
+int32 flag = 1;
+int32 pCurr = 1;
+int32 rCurr = 1;
+//sid32 sem_done = semcreate(1);
+int32 processArray[];
+int32 chkid = 0;
+shellcmd xsh_process_ring(int nargs, char *args[]){
+        int32 pCount = 3;
+        int32 rCount = 5;
+        int32 totalCount = pCount*rCount - 1;
+        int32 printCount = totalCount;
+        int32 intArray[totalCount];
+        int32 i = 1;
+        int32 k = 1;
+        int32 cnt = 0;
+        intArray[0] = totalCount;
+        int32 j =0;
+	int32 option = '2';
+        pid32 proc_pid = 0;
+        pid32 parent_pid = getpid();
+	int32 loopFlag = 0;
+	int32 prev_procId;
+	flag = 1;
+//	sid32 sem_done = semcreate(1);
+	chkid = create(chk, 1024, 20, "chk", 1, parent_pid);
+
+	while(i<=rCount){
+		k=1;
+		while(k<=pCount){
+			if(cnt<= totalCount){
+                      		if(option == '1'){
+                            		resume(create(polling_proc, 1024, 20, "pollProc", 4, &intArray[cnt], &intArray[cnt+1], &k, &i));
+                        	}else if(option == '2'){
+					//printf("entered condition 2..");
+                            		proc_pid = create(msg_Pass, 1024, 20, "msgPassing", 1, parent_pid);
+                            		if(flag == 1){
+					//	printf("inside if..");
+                            			printCount = totalCount;
+                            			flag = 0;
+			       			send(proc_pid, printCount);
+						prev_procId = proc_pid;
+                        		}else if(flag == 0){
+					//	printf("iside else..");
+                             			//wait(sem_done);
+						printCount = receive();
+						
+						send(prev_procId, OK);
+                             			send(proc_pid, printCount);
+                        		}
+					prev_procId = proc_pid;
+					pCurr=k;
+					rCurr=i;
+                        		resume(proc_pid);
+  	       	     		}
+	         	        cnt++;
+              	     		k++;
+               		}else{
+				break;
+				loopFlag = 1;
+			}
+		}
+		++i;
+		if(loopFlag == 1){
+			break;
+		}
+	}       
+	for(j=0; j <= totalCount; j++){
+		if(intArray[j] >= 0)
+                       1;
+                }
+        return SHELL_OK;
+
+}
+
+process polling_proc(int32 *intArray1, int32 *intArray2, int32 *pCurr, int32 *rCurr){
+        int32 currElement = *intArray1;
+        int32 nextElement = * intArray2;
+        int32 rCnt = *rCurr;
+        int32 pCnt = *pCurr;
+        nextElement = currElement-1;
+        *intArray2 = nextElement;
+        printf("Ring Element %d", pCnt);
+        printf(" : Round %d", rCnt);
+        printf(" : Value : %d\n", currElement);
+        return OK;
+}
+
+
+process msg_Pass(pid32 parent_pid){
+        int32 msg;
+        int32 nextMsg;
+        msg = receive();
+//	send(parent_pid, OK);
+        if(msg >= 0){
+                nextMsg = msg-1;
+                send(parent_pid, nextMsg);
+        }else{
+                send(parent_pid, OK);
+        }
+//	signal(sem_done);
+        printf("Ring Element %d", pCurr);
+        printf(" : Round %d", rCurr);
+        printf(" : Value : %d\n", msg);
+
+	/*if(chkid !=0){
+		resume(chkid);
+	}*/
+	
+        return OK;
+}
+
+process chk(pid32 parent_id){
+printf("helloooo");
+}
