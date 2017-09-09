@@ -1,9 +1,10 @@
 #include <xinu.h>
 #include <string.h>
 #include <stdio.h>
+#include <process_ring.h>
 
 process polling_proc(int32 *intArray1, int32 *intArray2, int32 *pCurr, int32 *rCurr);
-process msg_Passing(pid32 main_pid, pid32 parent_pid, int32 next_pid);
+process msg_Passing(pid32 main_pid, pid32 parent_pid, int32 *next_pid);
 
 shellcmd xsh_pRing(int nargs, char *args[]){
         int32 pCount = 3;
@@ -49,23 +50,23 @@ shellcmd xsh_pRing(int nargs, char *args[]){
 				//printf("entering loop.. %d\n", cnt);
 				if(firstFlag == 1){
 					parent_pid = 0;
-					printf("first parentid :: %d\n", parent_pid);
+					//printf("first parentid :: %d\n", parent_pid);
 					firstFlag = 0;
 				}else {
-					 printf("processArray[cnt-1] :: %d\n", processArray[cnt-1]);
+					 //printf("processArray[cnt-1] :: %d\n", processArray[cnt-1]);
 
 					parent_pid = processArray[cnt-1];
-					 printf("parentid :: %d\n", parent_pid);
+					 //printf("parentid :: %d\n", parent_pid);
 
 				}
 				if(cnt == pCount-1){
 				//	printf("address of 0 :: %d\n", &processArray[0]);
 					next_pid = &processArray[0];
-					 printf("next_pid :: %d\n",&processArray[0]);
+//					 printf("next_pid :: %d\n",&processArray[0]);
 
 				}else{
 					
-					printf("next_pid :: %d\n",&(processArray[cnt+1]));
+				//	printf("next_pid :: %d\n",&(processArray[cnt+1]));
  				//	printf("cnt here .. :: %d\n", cnt);
 					next_pid = &(processArray[cnt+1]);
 				//	 printf("cnt here 2.. :: %d\n", cnt);	
@@ -73,16 +74,16 @@ shellcmd xsh_pRing(int nargs, char *args[]){
 				
                 		proc_pid = create(msg_Passing, 1024, 20, "msgPassing", 3, main_pid, parent_pid, next_pid);
                 		processArray[cnt] = proc_pid;
-	                	printf("process adding :: %d\n", processArray[cnt]);
+//	                	printf("process adding :: %d\n", processArray[cnt]);
         	        	cnt++;
                 		//printf("processarray printing.. %d\n", cnt);
             		}
 			cnt = 0;
 			send(processArray[0], printCount);		
 			while(cnt<pCount){
-				printf("id:: %d\n", processArray[cnt]);
-				printf("address:: %d\n", &processArray[cnt]);
-				//resume(processArray[cnt]);
+//				printf("id:: %d\n", processArray[cnt]);
+//				printf("address:: %d\n", &processArray[cnt]);
+				resume(processArray[cnt]);
 				cnt++;
             		}
 			//cnt = 0;
@@ -94,15 +95,28 @@ shellcmd xsh_pRing(int nargs, char *args[]){
 	
 	
 	
-process msg_Passing(pid32 main_pid, pid32 parent_pid, int32 next_pid){
+process msg_Passing(pid32 main_pid, pid32 parent_pid, int32 *next_pid){
 
-	printf("in msg_Pass..");
-	int *nextAddr;
-	*nextAddr = next_pid;
-	 printf("next_pid :: %d\n",next_pid);
+//	printf("in msg_Pass..");
+	int nextAddr;
+	nextAddr = *next_pid;
+	printf("currPid :: %d\n", getpid());
+	//printf("next_pid :: %d\n",next_pid);
 
-	 printf("next_pid :: %d\n",nextAddr);
+	printf("next_pid :: %d\n",nextAddr);
 
+	int32 msg = receive();
+	send(main_pid, OK);
+	printf("value :: %d\n", msg);
+	msg--;
+	if(msg != -1){
+	
+		send(nextAddr, msg);
+		resume(nextAddr);
+	}else{
+		send(main_pid, OK);
+	}
+	return OK;
 
 }
 
