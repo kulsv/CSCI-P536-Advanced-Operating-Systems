@@ -90,7 +90,7 @@ shellcmd xsh_pRing(int nargs, char *args[]){
 
         }*/
 		
-	return SHELL_OK;
+	
 	}
 	
 	
