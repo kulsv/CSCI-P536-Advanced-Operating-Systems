@@ -12,25 +12,29 @@ status	insert(
 	  int32		key		/* Key for the inserted process	*/
 	)
 {
-	int16	curr;			/* Runs through items in a queue*/
-	int16	prev;			/* Holds previous node index	*/
-
+											/* Runs through items in a queue*/
+	struct qentry	*prev;			/* Holds previous node index	*/
+	struct qentry	*curr;
 	if (isbadqid(q) || isbadpid(pid)) {
 		return SYSERR;
 	}
 
-	curr = firstid(q);
-	while (queuetab[curr].qkey >= key) {
-		curr = queuetab[curr].qnext;
+	curr = &queuetab[firstid(q)];
+	//kprintf("Before WHile PId %d QID %d KEY %d \n",pid,q,key);
+	while (curr != NULL && queuetab[curr->q_pid].qkey >= key) {
+		curr = queuetab[curr->q_pid].qnext;
+		//kprintf("Inside WHile \n");
+
 	}
 
 	/* Insert process between curr node and previous node */
 
-	prev = queuetab[curr].qprev;	/* Get index of previous node	*/
+	prev = curr->qprev;	/* Get index of previous node	*/
 	queuetab[pid].qnext = curr;
 	queuetab[pid].qprev = prev;
 	queuetab[pid].qkey = key;
-	queuetab[prev].qnext = pid;
-	queuetab[curr].qprev = pid;
+	queuetab[pid].q_pid = pid;
+	prev->qnext = &queuetab[pid];
+	curr->qprev = &queuetab[pid];
 	return OK;
 }
