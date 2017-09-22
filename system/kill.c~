@@ -35,7 +35,7 @@ syscall	kill(
 	switch (prptr->prstate) {
 	case PR_CURR:
 		//prptr->prstate = PR_FREE;	/* Suicide */
-		//kprintf("changing status of PR_CURR to PR_DYING In kill.c");
+		kprintf("changing status of PR_CURR to PR_DYING In kill.c");
 		prptr->prstate = PR_DYING;	/* Changing state to dying */
 		resched();
 
