@@ -143,14 +143,14 @@ local	pid32	newpid(void)
 	for (i = 0; i < NPROC; i++) {
 		nextpid %= NPROC;	
 		if (proctab[nextpid].prstate == PR_DYING) {
-			kprintf("changing state dying to free in newpid...");	
+			//kprintf("changing state dying to free in newpid...");	
 			freestk(proctab[nextpid].prstkbase, proctab[nextpid].prstklen);		
 			proctab[nextpid].prstate = PR_FREE;
-			//return nextpid;
-		} if (proctab[nextpid].prstate == PR_FREE) {
-			kprintf("found free state in newpid...");
 			return nextpid++;
-		} else {
+		} /*if (proctab[nextpid].prstate == PR_FREE) {
+			//kprintf("found free state in newpid...");
+			return nextpid++;
+		} */else {
 			nextpid++;
 		}
 	}

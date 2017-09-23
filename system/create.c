@@ -146,7 +146,7 @@ local	pid32	newpid(void)
 			//kprintf("changing state dying to free in newpid...");	
 			freestk(proctab[nextpid].prstkbase, proctab[nextpid].prstklen);		
 			proctab[nextpid].prstate = PR_FREE;
-			//return nextpid;
+			//return nextpid++;
 		} if (proctab[nextpid].prstate == PR_FREE) {
 			//kprintf("found free state in newpid...");
 			return nextpid++;

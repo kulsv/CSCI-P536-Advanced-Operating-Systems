@@ -18,7 +18,7 @@ process p1(){
 process p2(pid32 pid1){
 	//printf("pid1 is :: %d\n", pid1);
 	uint16 prio = chprio(pid1, 21);
-	printf("old prio of 1 is :: %d\n", prio);
+printf("old prio of 1 is :: %d\n", prio);
 	
 }
 
