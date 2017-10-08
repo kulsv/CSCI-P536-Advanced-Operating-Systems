@@ -1,0 +1,144 @@
+#include <xinu.h>
+#include <future.h>
+#include <f_queue.h>
+
+future_t* future_alloc(future_mode_t mode){
+	future_t* f_ptr = getmem(sizeof(future_t));
+	f_ptr->mode = mode;
+	f_ptr->state = FUTURE_EMPTY;
+	
+	f_ptr->set_queue =  (struct qentry*)getmem (sizeof (struct fqentry));
+   f_ptr->set_queue->fqnext = NULL;
+    	  
+   f_ptr->get_queue =  (struct qentry*)getmem (sizeof (struct fqentry));
+   f_ptr->get_queue->fqnext = NULL;
+	
+	return f_ptr;
+}
+
+
+syscall future_free(future_t* f){
+	
+	
+	//struct fqentry* getQueue = getmem(sizeof(struct fqentry)); 
+	//getQueue = f->get_queue;
+	
+	//struct fqentry* setQueue = getmem(sizeof(struct fqentry)); 
+	//setQueue = f->set_queue;
+	
+	while (f->get_queue->fqnext != NULL)
+    {
+    		f->get_queue = (struct qentry*)(freemem(&(f->get_queue) ,sizeof(struct fqentry)));
+    		f->get_queue = f->get_queue ->fqnext;
+    }
+	
+	while (f->set_queue->fqnext != NULL)
+    {
+    		f->set_queue = (struct qentry*)(freemem(&(f->set_queue) ,sizeof(struct fqentry)));
+    		f->set_queue = f->set_queue ->fqnext;
+    }
+    f = freemem(&f ,sizeof(future_t));
+	//restore(mask);
+	return OK;
+}
+
+syscall future_get(future_t* f_ptr, int* n){
+	intmask	mask;	
+	mask = disable();
+		if(f_ptr->state != FUTURE_READY){
+			
+			f_ptr->state = FUTURE_WAITING;
+			if(f_ptr->mode == FUTURE_EXCLUSIVE){
+				if(f_ptr->pid > 0)
+					return SYSERR;
+					f_ptr->pid = getpid();
+				suspend(getpid());
+				*n = f_ptr->value;
+				f_ptr->state = FUTURE_EMPTY;
+			}else if(f_ptr->mode == FUTURE_SHARED){
+				f_enqueue(getpid(), f_ptr->get_queue);
+				suspend(getpid());
+				*n = f_ptr->value;
+				if(f_ptr->get_queue->fqnext == NULL){
+					f_ptr->state = FUTURE_EMPTY;
+					//printf("freeing memory from SHARED..");
+			//		future_free(f_ptr);
+				}
+			}else if(f_ptr->mode == FUTURE_QUEUE){
+				struct fqentry *squeue = f_ptr->set_queue;
+				if(squeue->pid !=0){
+						f_dequeue(f_ptr->set_queue, f_ptr->mode);	
+						
+				}else{
+					//ENQUEUE ITSELF
+					f_enqueue(getpid(), f_ptr->get_queue);		
+					f_ptr->state = FUTURE_WAITING;
+					suspend(getpid());
+				}
+				*n = f_ptr->value;
+						//check state
+						if(f_ptr->get_queue ==NULL || f_ptr->get_queue->pid != 0){
+							//other threads waiting in get_queue
+								f_ptr->state = FUTURE_WAITING;					
+						}else{
+								f_ptr->state = FUTURE_EMPTY;		
+						}
+			}
+			
+		}
+	
+	
+	restore(mask);
+	return OK;
+}
+
+
+syscall future_set(future_t* f_ptr, int n){
+	intmask	mask;	
+	mask = disable();
+	if(f_ptr->state == FUTURE_EMPTY || f_ptr->state == FUTURE_WAITING){
+		if(f_ptr->mode == FUTURE_EXCLUSIVE){	
+			if(f_ptr->set_queue->pid > 0){
+				printf("Cannot Set Future Value.. \n");
+				return SYSERR;
+			}
+			f_ptr->value = n;
+			f_ptr->state = FUTURE_READY;
+			f_ptr->set_queue->pid = getpid();
+			f_ptr->set_queue->fqnext = NULL;
+			resume(f_ptr->pid);
+		}else if(f_ptr->mode == FUTURE_SHARED){
+			if(f_ptr->set_queue->pid > 0){
+				printf("Cannot Set Future Value.. \n");
+				return SYSERR;
+			}
+			f_ptr->value = n;
+			
+			f_ptr->state = FUTURE_READY;
+			f_ptr->set_queue->pid = getpid();
+			f_ptr->set_queue->fqnext = NULL;
+			f_dequeue(f_ptr->get_queue, f_ptr->mode);	
+					
+		}else if(f_ptr->mode == FUTURE_QUEUE){
+				struct fqentry *gqueue = f_ptr->get_queue;
+				if(gqueue->pid !=0){
+						f_ptr->value = n;
+						f_ptr->state = FUTURE_READY;
+						f_dequeue(f_ptr->get_queue, f_ptr->mode);	
+						
+						
+						}else{
+					//ENQUEUE ITSELF
+					f_enqueue(getpid(), f_ptr->set_queue);	
+					f_ptr->state = FUTURE_WAITING;
+					suspend(getpid());	
+				}
+				
+			}	
+	}else{
+		restore(mask);
+		return SYSERR;
+	}
+	restore(mask);
+	return OK;
+}
