@@ -1,5 +1,3 @@
-
-
 #ifndef _FUTURE_H_
 #define _FUTURE_H_  
 
