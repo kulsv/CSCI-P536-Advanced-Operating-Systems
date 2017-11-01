@@ -38,7 +38,7 @@ pid32 f_dequeue (struct fqentry* fqueue)
 	pid32 pid;
 	struct fqentry *head;
 	head = fqueue->fqnext;
-	fqueue->fqnext = NULL;
+	//fqueue->fqnext = NULL;
 	pid = fqueue->pid;
 	fqueue = head;
 	return pid;

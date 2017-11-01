@@ -28,6 +28,12 @@ const	struct	cmdent	cmdtab[] = {
 	{"process_ring", FALSE, xsh_process_ring},
 	{"pRing",       FALSE,	xsh_pRing},
 	{"prodcons",       FALSE,	xsh_prodcons},
+	{"fstest",      FALSE, xsh_fstest},
+    {"create_example", FALSE, xsh_create_example},
+    {"polling_example", FALSE, xsh_polling_example},
+    {"semaphore_example", FALSE, xsh_semaphore_example},
+    {"message_example", FALSE, xsh_message_example},
+    {"arg_example", FALSE, xsh_arg_example},
 #ifdef ARM_BBB
   {"arp",		FALSE,	xsh_arp},
   {"ipaddr",	FALSE,	xsh_ipaddr},

@@ -84,3 +84,11 @@ extern shellcmd xsh_process_ring      (int32, char *[]);
 
 extern shellcmd xsh_pRing      (int32, char *[]);
 extern 	shellcmd xsh_prodcons	(int32,	char *[]);
+
+extern shellcmd xsh_create_example(int, char *[]);
+extern shellcmd xsh_polling_example(int, char *[]);
+extern shellcmd xsh_semaphore_example(int, char *[]);
+extern shellcmd xsh_message_example(int, char *[]);
+extern shellcmd xsh_arg_example(int, char*[]);
+extern shellcmd xsh_fstest(int nargs, char *args[]);
+

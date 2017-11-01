@@ -52,6 +52,3 @@ shellcmd xsh_prodcons(int nargs, char *args[]){
 	return SHELL_OK;
 }
 
-
-
-

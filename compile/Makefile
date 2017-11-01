@@ -17,7 +17,7 @@ $(error PLATFORM is not set. Edit your Makedefs file and add 'PLATFORM=arm-qemu'
 endif
 
 ifeq ($(PLATFORM),arm-qemu)
-	PLAT_CFLAGS =  -DARM_QEMU -mcpu=arm1176jz-s -ggdb3 
+	PLAT_CFLAGS =  -DARM_QEMU -DFS=1 -mcpu=arm1176jz-s -ggdb3 
 	PLAT_LOADADDR = 0x00010000
 else ifeq ($(PLATFORM),arm-bbb)
 	PLAT_CFLAGS =  -DARM_BBB -mcpu=cortex-a8 
@@ -179,10 +179,10 @@ etags:
 	@(cd $(TOPDIR); find . -name '*.[ch]' -exec etags -a {} \;)
 
 qemu: xinu
-	export QEMU_AUDIO_DRV=wav; export QEMU_WAV_PATH=$(TOPDIR)/compile/.wav.wav; qemu-system-arm -M versatilepb -m 512M -nographic -cpu arm1176 -kernel xinu.boot 
+	export QEMU_AUDIO_DRV=wav; export QEMU_WAV_PATH=$(TOPDIR)/compile/.wav.wav; qemu-system-arm -M versatilepb -m 256M -nographic -cpu arm1176 -kernel xinu.boot 
 
 qemu-gdb: xinu
-		export QEMU_AUDIO_DRV=wav; export QEMU_WAV_PATH=$(TOPDIR)/compile/.wav.wav;qemu-system-arm -M versatilepb -m 512M -nographic -cpu arm1176 -kernel xinu.boot -S -gdb tcp::${GPORT}
+		export QEMU_AUDIO_DRV=wav; export QEMU_WAV_PATH=$(TOPDIR)/compile/.wav.wav;qemu-system-arm -M versatilepb -m 256M -nographic -cpu arm1176 -kernel xinu.boot -S -gdb tcp::${GPORT}
 #--------------------------------------------------------------------------------
 # Locations of source directories and exceptions (.c and .[sS] files to exclude)
 #--------------------------------------------------------------------------------
