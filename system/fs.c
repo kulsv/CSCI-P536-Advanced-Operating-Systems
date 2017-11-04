@@ -41,35 +41,35 @@
 			int i = 0;
 			while(i <= fsd.inodes_used){
 				struct filetable fentry = oft[i];
-				if((strcmp(filename,fsd.root_dir.entry[numentries].name))==0){
+				if((strcmp(filename,fsd.root_dir.entry[numentries].name))==0){							// checking if file already exists
 					printf("File name already exists\n");
 					return SYSERR;		
 				}
 				i++;		
 			}
-			strcpy(fsd.root_dir.entry[numentries].name,filename);
+			strcpy(fsd.root_dir.entry[numentries].name,filename);											// creating new file by storing its name
 			printf("File Created :: %s\n", fsd.root_dir.entry[numentries].name);
-			fsd.root_dir.entry[numentries].inode_num = fsd.inodes_used;
+			fsd.root_dir.entry[numentries].inode_num = fsd.inodes_used;									// appropriate changes in struct dirent
 			fsd.root_dir.numentries++;
 			struct inode in;
 			in.id = fsd.inodes_used;
 			in.type = 1;
 			in.device = dev0;
-			fs_put_inode_by_num(dev0, in.id,&in);  //new change
-			fsd.inodes_used++;
+			fs_put_inode_by_num(dev0, in.id,&in);  
+			fsd.inodes_used++;																						// updating the count of inodes
 			return fsd.inodes_used-1;
 		}
 		}
 		
 		int fs_open(char *filename, int flags) {
-			if(flags == O_RDWR || flags == O_WRONLY || flags == O_RDONLY){
+			if(flags == O_RDWR || flags == O_WRONLY || flags == O_RDONLY){								// checking file flags
 				int i = 0;
 				struct inode *in;
 				struct filetable fentry;
 				while(i < NUM_FD){
 				//struct filetable fentry = oft[i];
-					if((strcmp(filename,fsd.root_dir.entry[i].name))==0){			
-						fentry.state = 1;
+					if((strcmp(filename,fsd.root_dir.entry[i].name))==0){									//locating the file by file name in dirent
+						fentry.state = 1;																				//assigning appropriate values to file entry to be inserted in file table
 						fentry.in.id = i;
 						fentry.in.size = fsd.blocksz;
 						fentry.fileptr = 0;
@@ -81,6 +81,7 @@
 						i++;
 					}
 				}
+				printf("File not present.\n");
 			}else{
 				printf("File should be in Readonly OR WriteOnly OR Read and Write Mode");					
 			}
@@ -88,22 +89,14 @@
 		}
 		
 		int fs_close(int fd) {
-			int i = 0;
-			while(i <=fsd.inodes_used){
-				struct filetable fentry = oft[i];
-				if(fentry.in.id == fd){
-					fentry.state = 0;
-					return 1;		
-				}else{
-					i++;
-				}
-			}
-			return 0;
+			if(oft[fd].state != 0)
+			oft[fd].state = 0;																						// changing the status of the opened file to close
+			return 1;
 		}
 		
 		
 		int fs_seek(int fd, int offset) {
-			oft[fd].fileptr += offset;		
+			oft[fd].fileptr += offset;																				// changing the value of fileptr by adding the offset
 			return SYSERR;
 		}
 		
@@ -112,14 +105,14 @@
 				int nlen = nbytes;
 				int tempsize = 0;
 				int blkcount = 0;
-				int start = 0;
+				int start = oft[fd].fileptr;
 				int j = 0;
 				while(nlen != 0){
 						if(nlen > 0 && nlen < fsd.blocksz){
 						tempsize = nlen;		
 					}else if(nlen > 0 && nlen > fsd.blocksz)
 						tempsize = fsd.blocksz;
-						int status = bs_bread(dev0, oft[fd].in.blocks[blkcount], 0, buf+start, tempsize);
+						int status = bs_bread(dev0, oft[fd].in.blocks[blkcount], 0, buf+start, tempsize);			// calling bsread function with appropriate buffer length and memory block count
 						start += tempsize;
 						nlen = nlen - tempsize;	
 						blkcount ++;
@@ -151,10 +144,10 @@
 				int j = 0;
 					while(i<MDEV_NUM_BLOCKS && nblks > 0) {
 				
-					if(fs_getmaskbit(i)==0)	{
+					if(fs_getmaskbit(i)==0)	{																						// finding next free mask bit for free block
 						 if(nlen > fsd.blocksz){
 				 			nlen = nlen - fsd.blocksz;
-					 		bs_bwrite(dev0, i, 0, buf+start, fsd.blocksz);
+					 		bs_bwrite(dev0, i, 0, buf+start, fsd.blocksz);													// calling bswrite function with appropriate buffer length and memory block count
 							start += fsd.blocksz;
 						}else if(nlen < fsd.blocksz && nlen > 0){
 						bs_bwrite(dev0, i, 0, buf+start, nlen);

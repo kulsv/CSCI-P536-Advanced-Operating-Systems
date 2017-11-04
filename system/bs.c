@@ -58,17 +58,8 @@
 	  }
 	
 	  bbase = &dev0_blocks[block * dev0_blocksize];
-	//	printf("inside bs_read.. CALLING MEMCPY.. \n");
 	  memcpy(buf, (bbase+offset), len);
 	
-	/*int i = 0;
-	   printf("printing characters read ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \n");
-	
-	  for(i=0; i<len; i++)
-	    {
-	       
-	        printf("%c", &(buf[i]));
-	    }*/
 	  return OK;
 	
 	}
@@ -78,14 +69,6 @@
 	  char *bbase;
 	//  printf("lennnn :: %d\n", len);
 	  int i = 0;
-	 // printf("printing characters to be written ::::::::::::::::: \n");
-	
-	 /*for(i=0; i<len; i++)
-	    {
-	       
-	        printf("%c", &(buf[i]));
-	    }*/
-		//printf("inside bs_write..\n");
 	  if (dev != 0) {
 	    printf("Unsupported device\n");
 	    return SYSERR;

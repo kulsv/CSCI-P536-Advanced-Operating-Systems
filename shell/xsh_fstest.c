@@ -60,6 +60,8 @@ shellcmd xsh_fstest(int nargs, char *args[]) {
     // Create test file
     fd = fs_create("Test_File", O_CREAT);
     fd = fs_open("Test_File", O_RDWR);
+    fs_close(fd);
+	//fd = fs_open("Test_File2", O_RDWR);
    // printf("fd is :: %d\n", fd);
     // Fill buffer with random stuff
     for(i=0; i<SIZE; i++)
@@ -78,7 +80,7 @@ shellcmd xsh_fstest(int nargs, char *args[]) {
 
     // Now my file offset is pointing at EOF file, i need to bring it back to start of file
     // Assuming here implementation of fs_seek is like "original_offset = original_offset + input_offset_from_fs_seek"
-    fs_seek(fd,-1100); 
+    fs_seek(fd,-rval); 
     
     //read the file 
     rval = fs_read(fd, buf2, rval);
@@ -97,7 +99,7 @@ shellcmd xsh_fstest(int nargs, char *args[]) {
     {
         printf("\n\rReturn val for fclose : %d",rval);
     }
-printf("\n\n");
+	printf("\n\n");
 clean_up:
     freemem(buf1,SIZE);
     freemem(buf2,SIZE);
