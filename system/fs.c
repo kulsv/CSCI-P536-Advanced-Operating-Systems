@@ -40,7 +40,7 @@
 			int numentries = fsd.root_dir.numentries;
 			int i = 0;
 			while(i <= fsd.inodes_used){
-				struct filetable fentry = oft[i];
+			//	struct filetable fentry = oft[i];
 				if((strcmp(filename,fsd.root_dir.entry[numentries].name))==0){							// checking if file already exists
 					printf("File name already exists\n");
 					return SYSERR;		
@@ -64,7 +64,7 @@
 		int fs_open(char *filename, int flags) {
 			if(flags == O_RDWR || flags == O_WRONLY || flags == O_RDONLY){								// checking file flags
 				int i = 0;
-				struct inode *in;
+				//struct inode *in;
 				struct filetable fentry;
 				while(i < NUM_FD){
 				//struct filetable fentry = oft[i];
@@ -106,7 +106,7 @@
 				int tempsize = 0;
 				int blkcount = 0;
 				int start = oft[fd].fileptr;
-				int j = 0;
+				//int j = 0;
 				while(nlen != 0){
 						if(nlen > 0 && nlen < fsd.blocksz){
 						tempsize = nlen;		
@@ -133,7 +133,7 @@
 				int nlen = nbytes;
 				int count = 0;
 				int start = 0;
-				char *filename;
+				//char *filename;
 				if(nbytes > fsd.blocksz){
 					nblks = nbytes/fsd.blocksz;	
 					if(nbytes%fsd.blocksz > 0)
@@ -141,7 +141,7 @@
 					}else{
 					nblks = 1;
 				}
-				int j = 0;
+				//int j = 0;
 					while(i<MDEV_NUM_BLOCKS && nblks > 0) {
 				
 					if(fs_getmaskbit(i)==0)	{																						// finding next free mask bit for free block
