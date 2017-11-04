@@ -78,7 +78,7 @@ shellcmd xsh_fstest(int nargs, char *args[]) {
 
     // Now my file offset is pointing at EOF file, i need to bring it back to start of file
     // Assuming here implementation of fs_seek is like "original_offset = original_offset + input_offset_from_fs_seek"
-    fs_seek(fd,-rval); 
+    fs_seek(fd,-1100); 
     
     //read the file 
     rval = fs_read(fd, buf2, rval);

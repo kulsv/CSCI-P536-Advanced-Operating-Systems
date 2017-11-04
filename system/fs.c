@@ -103,7 +103,7 @@
 		
 		
 		int fs_seek(int fd, int offset) {
-			oft[fd].fileptr = offset;		
+			oft[fd].fileptr += offset;		
 			return SYSERR;
 		}
 		
@@ -168,6 +168,7 @@
 					if(nlen ==0){
 						fs_printfreemask();
 						oft[fd].in.size = nbytes;
+						oft[fd].fileptr = nbytes;
 						fs_put_inode_by_num(dev0, oft[fd].in.id,&oft[fd].in);
 						return nbytes;
 					}
