@@ -59,7 +59,8 @@ shellcmd xsh_fstest(int nargs, char *args[]) {
     
     // Create test file
     fd = fs_create("Test_File", O_CREAT);
-       
+    fd = fs_open("Test_File", 2);
+   // printf("fd is :: %d\n", fd);
     // Fill buffer with random stuff
     for(i=0; i<SIZE; i++)
     {
@@ -67,7 +68,7 @@ shellcmd xsh_fstest(int nargs, char *args[]) {
         j = j+33;
         buf1[i] = (char) j;
     }
-    
+    printf("\n");
     rval = fs_write(fd,buf1,SIZE);
     if(rval == 0 || rval != SIZE )
     {
@@ -81,7 +82,7 @@ shellcmd xsh_fstest(int nargs, char *args[]) {
     
     //read the file 
     rval = fs_read(fd, buf2, rval);
-    buf2[rval] = EOF; // TODO: Write end of file symbol i.e. slash-zero instead of EOF. I can not do this because of WIKI editor limitation    
+    buf2[rval] = '\0'; // TODO: Write end of file symbol i.e. slash-zero instead of EOF. I can not do this because of WIKI editor limitation    
 
     if(rval == 0)
     {
@@ -96,7 +97,7 @@ shellcmd xsh_fstest(int nargs, char *args[]) {
     {
         printf("\n\rReturn val for fclose : %d",rval);
     }
-
+printf("\n\n");
 clean_up:
     freemem(buf1,SIZE);
     freemem(buf2,SIZE);
