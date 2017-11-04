@@ -59,7 +59,7 @@ shellcmd xsh_fstest(int nargs, char *args[]) {
     
     // Create test file
     fd = fs_create("Test_File", O_CREAT);
-    fd = fs_open("Test_File", 2);
+    fd = fs_open("Test_File", O_RDWR);
    // printf("fd is :: %d\n", fd);
     // Fill buffer with random stuff
     for(i=0; i<SIZE; i++)
